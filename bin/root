@@ -1,0 +1,15 @@
+#/bin/bash 
+#set -x 
+if xauth quit
+then
+	export XAUTHDISPLAY=$(xauth list | awk -F[:\ .\/] -v display=${DISPLAY#*:}  -v hostname=`hostname -s`  ' 
+		BEGIN {split(display,arr,".")}
+			{if ( arr[1]==$(NF-4) && $1 == hostname ) print $0 }
+		END {}
+		')
+	sudo xauth -f /root/.Xauthority add $XAUTHDISPLAY
+	sudo su -p 
+	sudo xauth -f /root/.Xauthority list | awk '! /\\/ { print $1 } '  | xargs -i sudo xauth -f /root/.Xauthority remove {}
+else
+	sudo -i
+fi

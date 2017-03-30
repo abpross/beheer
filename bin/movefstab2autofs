@@ -1,0 +1,44 @@
+#!/bin/bash
+#set -x
+#load default functions
+IP=192.168.0.21
+CFGDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+if [[ -f ${CFGDIR}/defaultfunctions.incl ]]
+then
+        source ${CFGDIR}/defaultfunctions.incl
+        Cecho info "INFO:: loading defaults"
+else
+        echo "SYS:: defaultfunctions.incl niet aanwezig"
+        export REPORTSRSLT="SYS:: defaultfunctions.incl niet aanwezig"
+        exit 0
+fi
+TextColors
+#check of userrpporten is geinstalleerd
+if ${SSH} ${IP} "sudo ls  -d /u01/Oracle/Middleware_rpt  1>/dev/null  2>&1"
+then
+	#check of de auto.mastter al is gevuld
+	if ! ${SSH} ${IP} "grep Middleware_rpt_shared /etc/auto.master >/dev/null 2>&1"
+	then 
+		Cecho info "INFO:: add line to /etc/auto.master"
+		${SSH} ${IP} "echo /nfs/Middleware_rpt_shared /etc/auto.middleware_rpt_shared | sudo tee -a  /etc/auto.master"
+	fi
+	# geef de mogevingen op de machine
+	for DBNAAM in `${SSH} ${IP} "ls /u02/ | egrep -iv \"old|oud\""` 
+	do
+		cecho info "INFO:: ${DBNAAM}  found at /u02/${DBNAAM}"
+		#controleer of omgeving in fstab staat en niet in auto.middleware_rpt_shared
+		if ${SSH} ${IP} "grep ${DBNAAM} /etc/fstab >/dev/null 2>&1 && ! grep ${DBNAAM} /etc/auto.middleware_rpt_shared >/dev/null 2>&1"
+		then
+			${SSH} ${IP} "sudo umount -l /u01/Oracle/shared/Middleware_rpt/${DBNAAM} >/dev/null 2>&1"
+			if ${SSH} ${IP} "grep -v \"^#\" /etc/fstab 2>/dev/null | grep \"/nfs/Middleware_rpt_shared/${DBNAAM}\" /etc/fstab >/dev/null 2>&1"
+			then
+				if !  ${SSH} ${IP} "grep -w "^${DBNAAM}" /etc/auto.middleware_rpt_shared >/dev/null 2>&1"
+				then
+					${SSH} ${IP} "grep -v \"^#\" /etc/fstab | grep \"/nfs/Middleware_rpt_shared/${DBNAAM}\" /etc/fstab | awk -v db=${DBNAAM} '{printf db\"\t-soft,intr\t\"\$1\"\n\"}' | sudo tee -a /etc/auto.middleware_rpt_shared"
+				fi
+				${SSH} ${IP} "sudo sed -i '/^[a-z|0-9].*.\/nfs\/Middleware_rpt_shared\/'${DBNAAM}'/ s|^|#|g' /etc/fstab"
+				${SSH} ${IP} "sudo service autofs restart"
+			fi
+		fi
+	done
+fi

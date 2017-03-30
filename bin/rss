@@ -1,0 +1,2 @@
+/usr/bin/rsstail -t -u http://www.nu.nl/deeplink_rss2/index.jsp?r=Algemeen \
+-u http://rss.rtvoost.nl -u http://www.rtl.nl/service/rss/rtlnieuws/index.xml

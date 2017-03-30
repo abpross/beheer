@@ -1,0 +1,25 @@
+#!/bin/bash
+set -o pipefail
+while true
+do
+	if ping -W 2 -c 1 ${1} | grep icmp
+	then
+		echo icmp ok, start sping
+		x=0
+		echo -n "$x "
+		while true 
+		do 
+			nc -zvw3 ${1} 22 > /dev/null 2>&1
+			if (( $? == 0 )) 
+			then 
+				echo sping ${1} ok
+			else
+				echo sping ${1} not responding
+			fi
+			sleep 1
+			x=$(($x+1))
+			echo -n "$x "
+		done
+	fi
+	sleep 1
+done

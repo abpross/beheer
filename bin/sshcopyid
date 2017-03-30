@@ -1,0 +1,2 @@
+#!/bin/bash
+cat ~/.ssh/*.pub | ssh $1 "cd .ssh && cat - >> authorized_keys && sort -u authorized_keys -o /tmp/authorized_keys && cat /tmp/authorized_keys > ~/.ssh/authorized_keys"

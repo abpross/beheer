@@ -1,0 +1,6 @@
+mv /etc/init.d/s_obiee_SYSDB /etc/init.d/obiee_SYSDB
+mv /u01/Oracle/Middleware_rpt/user_projects/applications/s_bifoundation_domain_SYSDB /u01/Oracle/Middleware_rpt/user_projects/applications/bifoundation_domain_SYSDB
+mv /u01/Oracle/Middleware_rpt/user_projects/domains/s_bifoundation_domain_SYSDB /u01/Oracle/Middleware_rpt/user_projects/domains/bifoundation_domain_SYSDB
+/etc/init.d/obiee_SYSDB start
+/etc/init.d/obiee12c_SYSDB stop
+

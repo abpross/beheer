@@ -1,0 +1,2 @@
+#!/bin/bash
+ssh oracle@monitoring "source ~/.bash_profile;\${ORACLE_HOME}/bin/tnsping $1"

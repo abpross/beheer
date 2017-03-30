@@ -1,0 +1,18 @@
+#!/usr/bin/expect -f
+set timeout 3
+spawn ssh root@192.168.90.86
+expect "assword:"
+send "b3rk3nb0rgh\r"
+expect {
+		">" {
+			send "set /SP/serial/host pendingspeed=115200\r"
+			send "set /SP/serial/host commitpending=true\r"
+		}
+		end
+	}
+expect {
+		">" {
+			send 'exit'
+		}
+		end
+	}
